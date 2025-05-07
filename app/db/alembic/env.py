@@ -1,10 +1,6 @@
-# Import dynamic DB URL and models
+# Import the dynamic DB URL and models
 from app.config.database import DATABASE_URI, Base
-from app.db.models.user import User
-from app.db.models.order import Order
-from app.db.models.role import Role
-from app.db.models.privilege import Privilege
-from app.db.models.role_privilege import RolePrivilege
+import app.db.models
 
 from logging.config import fileConfig
 
@@ -12,13 +8,6 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-
-import os
-import sys
-from pathlib import Path
-
-# Add the root of project to sys.path so Python can find config/database.py
-sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
