@@ -7,7 +7,7 @@ class Privilege(Base):
     __tablename__ = "privileges"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    key = Column(String(50), nullable=False)
+    key = Column(String(50), unique=True, nullable=False)
     name = Column(String(255), nullable=False)
 
     role_privileges = relationship(
