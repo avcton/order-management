@@ -1,11 +1,12 @@
 from app.config.settings import settings
-from app.routers import users
+from app.routers import users, orders
 from fastapi import FastAPI
 import uvicorn
 
 
 app = FastAPI()
 app.include_router(users.router)
+app.include_router(orders.router)
 
 
 @app.get("/")

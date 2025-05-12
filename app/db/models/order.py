@@ -1,7 +1,7 @@
 from sqlalchemy.sql import func
 from app.config.database import Base
 from sqlalchemy.orm import relationship
-from app.validators.order import OrderStatus
+from app.validators.orders import OrderStatus
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import Column, Integer, ForeignKey, DateTime, Numeric
 
