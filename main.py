@@ -1,10 +1,11 @@
-from app.config.settings import settings
-from app.routers import users, orders
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
+from app.config.settings import settings
+from app.routers import auth, users, orders
 
 
 app = FastAPI()
+app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(orders.router)
 
