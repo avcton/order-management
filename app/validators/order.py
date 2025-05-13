@@ -1,6 +1,8 @@
-from pydantic import BaseModel
-from app.db.models.order import OrderStatusEnum
+from enum import Enum
 
 
-class OrderStatusModel(BaseModel):
-    status: OrderStatusEnum = OrderStatusEnum.pending
+class OrderStatus(str, Enum):
+    PENDING = "pending"
+    IN_PROGRESS = "in_progress"
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
