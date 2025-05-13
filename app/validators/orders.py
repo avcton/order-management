@@ -2,7 +2,6 @@ import math
 from enum import Enum
 from decimal import Decimal
 from datetime import datetime
-from app.db.models.order import OrderStatusEnum
 from pydantic import BaseModel, field_validator, model_validator
 
 
@@ -18,7 +17,7 @@ class OrderOut(BaseModel):
     user_id: int
     order_date: datetime
     total_amount: Decimal
-    status: OrderStatusEnum
+    status: OrderStatus
     created_at: datetime
     updated_at: datetime
 
@@ -43,7 +42,7 @@ class OrderUpdate(BaseModel):
     user_id: int | None = None
     order_date: datetime | None = None
     total_amount: Decimal | None = None
-    status: OrderStatusEnum | None = None
+    status: OrderStatus | None = None
 
     @model_validator(mode="after")
     def check_total_amount_if_present(self) -> "OrderUpdate":

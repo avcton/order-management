@@ -25,6 +25,33 @@ async def create_user(user: validator.UserCreate,
             status_code=500, detail="An error occurred while creating user.")
 
 
+# List all users (Admin only)
+@router.get("/users", response_model=list[validator.UserOut])
+async def get_users(db: AsyncSession = Depends(get_db_session)):
+    try:
+        return await user_service.get_users(db)
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail="An error occurred while fetching users.")
+
+
+# Update current user details (User only)
+@router.put("/users/me", response_model=validator.UserOut, status_code=200)
+async def update_current_user(user: validator.UserUpdate,
+                              current_user: TokenData = Depends(
+                                  get_current_user),
+                              db: AsyncSession = Depends(get_db_session)):
+    try:
+        user_id = int(current_user['sub'])
+        updated_user = await user_service.update_user(db, user_id, user)
+        return updated_user
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail="An error occurred while updating current user.")
+
+
 # Retrieve current user details (User only)
 @router.get("/users/me", response_model=validator.UserOut)
 async def get_current_user(current_user: TokenData = Depends(get_current_user),
@@ -57,23 +84,6 @@ async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db_session
             status_code=500, detail="An error occurred while fetching user.")
 
 
-# Update current user details (User only)
-@router.put("/users/me", response_model=validator.UserOut, status_code=200)
-async def update_current_user(user: validator.UserUpdate,
-                              current_user: TokenData = Depends(
-                                  get_current_user),
-                              db: AsyncSession = Depends(get_db_session)):
-    try:
-        user_id = int(current_user['sub'])
-        updated_user = await user_service.update_user(db, user_id, user)
-        return updated_user
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail="An error occurred while updating current user.")
-
-
 # Update user (Admin and User if self)
 @router.put("/users/{user_id}", response_model=validator.UserOut, status_code=200)
 async def update_user(user_id: int, user: validator.UserUpdate,
@@ -99,16 +109,6 @@ async def delete_user(user_id: int, db: AsyncSession = Depends(get_db_session)):
     except Exception as e:
         raise HTTPException(
             status_code=500, detail="An error occurred while deleting user.")
-
-
-# List all users (Admin only)
-@router.get("/users", response_model=list[validator.UserOut])
-async def get_users(db: AsyncSession = Depends(get_db_session)):
-    try:
-        return await user_service.get_users(db)
-    except Exception as e:
-        raise HTTPException(
-            status_code=500, detail="An error occurred while fetching users.")
 
 
 # List orders for a specific user (Admin)

@@ -13,7 +13,8 @@ class Order(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     order_date = Column(DateTime(timezone=True), server_default=func.now())
     total_amount = Column(Numeric(10, 2), nullable=False, comment=">=0")
-    status = Column(SQLAlchemyEnum(OrderStatus, name="statuses"),
+    status = Column(SQLAlchemyEnum(OrderStatus, name="statuses",
+                                   values_callable=lambda x: [e.value for e in x]),
                     nullable=False, default=OrderStatus.PENDING)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True),

@@ -1,7 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.future import select
 from app.db.models import User, Order
-from app.db.models.order import OrderStatusEnum
 from app.validators import orders as validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +18,13 @@ async def get_order_by_id(db: AsyncSession, order_id: int):
 
 
 async def get_orders_by_user(db: AsyncSession, user_id: int):
+    # Check if user exists
+    result = await db.execute(
+        select(User).where(User.id == user_id)
+    )
+    if not result.scalar_one_or_none():
+        raise HTTPException(status_code=404, detail="User not found")
+    # Fetch orders for the user
     result = await db.execute(
         select(Order).where(Order.user_id == user_id)
     )
@@ -71,10 +77,6 @@ async def update_order(db: AsyncSession, order_id: int, order_data: validator.Or
         order.total_amount = order_data.total_amount
 
     if order_data.status is not None:
-        # Check if status is valid
-        if order_data.status not in [status.value for status in OrderStatusEnum]:
-            raise HTTPException(
-                status_code=400, detail="Invalid order status provided")
         order.status = order_data.status
 
     db.add(order)
