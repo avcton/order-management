@@ -1,4 +1,4 @@
-from app.config.config import settings
+from app.config.settings import settings
 from fastapi import FastAPI
 import uvicorn
 
@@ -14,7 +14,7 @@ def read_root():
 if __name__ == "__main__":
     uvicorn.run(
         "main:app",
-        host=settings.host,
-        port=settings.port,
+        host=settings.SERVER_HOST,
+        port=settings.SERVER_PORT,
         reload=True,
     )
