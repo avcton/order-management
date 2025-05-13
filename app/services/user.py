@@ -2,8 +2,8 @@ from passlib.hash import bcrypt
 from app.db.models import User, Role
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.validators import users as validator
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def create_user(db: AsyncSession, user_data: validator.UserCreate):
