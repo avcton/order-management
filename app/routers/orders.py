@@ -40,10 +40,10 @@ async def get_orders_by_user(current_user: AccessTokenData = Depends(get_current
 @router.get("/orders/{order_id}", response_model=validator.OrderOut)
 async def get_order_by_id(order_id: int, db: AsyncSession = Depends(get_db_session)):
     try:
-        user = await order_service.get_order_by_id(db, order_id)
-        if not user:
+        order = await order_service.get_order_by_id(db, order_id)
+        if not order:
             raise HTTPException(status_code=404, detail="Order not found")
-        return user
+        return order
     except HTTPException:
         raise
     except Exception as e:
