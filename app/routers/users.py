@@ -1,11 +1,11 @@
-from app.validators.auth import TokenData
 from app.services import user as user_service
-from app.services import order as order_service
 from app.validators import users as validator
-from app.validators import orders as order_validator
 from app.config.database import get_db_session
+from app.validators.auth import AccessTokenData
+from app.services import order as order_service
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.middlewares.auth import get_current_user
+from app.validators import orders as order_validator
 from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter()
@@ -38,7 +38,7 @@ async def get_users(db: AsyncSession = Depends(get_db_session)):
 # Update current user details (User only)
 @router.put("/users/me", response_model=validator.UserOut, status_code=200)
 async def update_current_user(user: validator.UserUpdate,
-                              current_user: TokenData = Depends(
+                              current_user: AccessTokenData = Depends(
                                   get_current_user),
                               db: AsyncSession = Depends(get_db_session)):
     try:
@@ -54,7 +54,7 @@ async def update_current_user(user: validator.UserUpdate,
 
 # Retrieve current user details (User only)
 @router.get("/users/me", response_model=validator.UserOut)
-async def get_current_user(current_user: TokenData = Depends(get_current_user),
+async def get_current_user(current_user: AccessTokenData = Depends(get_current_user),
                            db: AsyncSession = Depends(get_db_session)):
     try:
         user_id = int(current_user['sub'])

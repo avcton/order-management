@@ -1,4 +1,4 @@
-from app.validators.auth import TokenData
+from app.validators.auth import AccessTokenData
 from app.validators import orders as validator
 from app.config.database import get_db_session
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +21,7 @@ async def get_orders(db: AsyncSession = Depends(get_db_session)):
 
 # List orders placed by current user (User only)
 @router.get("/orders/me", response_model=list[validator.OrderOut])
-async def get_orders_by_user(current_user: TokenData = Depends(get_current_user),
+async def get_orders_by_user(current_user: AccessTokenData = Depends(get_current_user),
                              db: AsyncSession = Depends(get_db_session)):
     try:
         user_id = int(current_user['sub'])
@@ -54,7 +54,8 @@ async def get_order_by_id(order_id: int, db: AsyncSession = Depends(get_db_sessi
 # Create new order current user (User only)
 @router.post("/orders", response_model=validator.OrderOut, status_code=201)
 async def create_order(order: validator.OrderCreate,
-                       current_user: TokenData = Depends(get_current_user),
+                       current_user: AccessTokenData = Depends(
+                           get_current_user),
                        db: AsyncSession = Depends(get_db_session)):
     try:
         user_id = int(current_user['sub'])

@@ -1,14 +1,24 @@
 from pydantic import BaseModel, model_validator
 
 
-class Token(BaseModel):
+class AccessTokenResponse(BaseModel):
     access_token: str
-    token_type: str
+    refresh_token: str
+    token_type: str = 'bearer'
 
 
-class TokenData(BaseModel):
+class AccessTokenData(BaseModel):
     sub: str
     role: str
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+class RefreshResponse(BaseModel):
+    access_token: str
+    token_type: str = 'bearer'
 
 
 class LoginRequest(BaseModel):
