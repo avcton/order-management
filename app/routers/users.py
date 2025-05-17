@@ -1,12 +1,11 @@
-from fastapi import Depends, HTTPException
 from app.services import user as user_service
 from app.validators import users as validator
 from app.config.database import get_db_session
 from app.validators.auth import AccessTokenData
 from app.services import order as order_service
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.middlewares.auth import get_current_user
 from app.middlewares.router import get_api_router
+from fastapi import Depends, HTTPException, Request
 from app.validators import orders as order_validator
 
 router = get_api_router("users")
@@ -38,12 +37,11 @@ async def get_users(db: AsyncSession = Depends(get_db_session)):
 
 # Update current user details (User only)
 @router.put("/me", response_model=validator.UserOut, status_code=200)
-async def update_current_user(user: validator.UserUpdate,
-                              current_user: AccessTokenData = Depends(
-                                  get_current_user),
+async def update_current_user(request: Request, user: validator.UserUpdate,
                               db: AsyncSession = Depends(get_db_session)):
     try:
-        user_id = int(current_user['sub'])
+        user_data: AccessTokenData = request.state.user
+        user_id = int(user_data['sub'])
         updated_user = await user_service.update_user(db, user_id, user)
         return updated_user
     except ValueError as e:
@@ -55,10 +53,11 @@ async def update_current_user(user: validator.UserUpdate,
 
 # Retrieve current user details (User only)
 @router.get("/me", response_model=validator.UserOut)
-async def get_current_user(current_user: AccessTokenData = Depends(get_current_user),
+async def get_current_user(request: Request,
                            db: AsyncSession = Depends(get_db_session)):
     try:
-        user_id = int(current_user['sub'])
+        user_data: AccessTokenData = request.state.user
+        user_id = int(user_data['sub'])
         user = await user_service.get_user_by_id(db, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")

@@ -1,11 +1,10 @@
-from app.validators.auth import AccessTokenData
 from app.validators import orders as validator
 from app.config.database import get_db_session
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.validators.auth import AccessTokenData
 from app.services import order as order_service
-from app.middlewares.auth import get_current_user
 from app.middlewares.router import get_api_router
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 
 router = get_api_router("orders")
 
@@ -22,10 +21,11 @@ async def get_orders(db: AsyncSession = Depends(get_db_session)):
 
 # List orders placed by current user (User only)
 @router.get("/me", response_model=list[validator.OrderOut])
-async def get_orders_by_user(current_user: AccessTokenData = Depends(get_current_user),
+async def get_orders_by_user(request: Request,
                              db: AsyncSession = Depends(get_db_session)):
     try:
-        user_id = int(current_user['sub'])
+        user_data: AccessTokenData = request.state.user
+        user_id = int(user_data['sub'])
         orders = await order_service.get_orders_by_user(db, user_id)
         return orders
     except HTTPException:
@@ -54,12 +54,11 @@ async def get_order_by_id(order_id: int, db: AsyncSession = Depends(get_db_sessi
 
 # Create new order current user (User only)
 @router.post("/", response_model=validator.OrderOut, status_code=201)
-async def create_order(order: validator.OrderCreate,
-                       current_user: AccessTokenData = Depends(
-                           get_current_user),
+async def create_order(request: Request, order: validator.OrderCreate,
                        db: AsyncSession = Depends(get_db_session)):
     try:
-        user_id = int(current_user['sub'])
+        user_data: AccessTokenData = request.state.user
+        user_id = int(user_data['sub'])
         order = await order_service.create_order(db, user_id, order)
         return order
     except HTTPException:
