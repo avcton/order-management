@@ -1,15 +1,21 @@
+from enum import Enum
+from app.validators.role import Role
 from pydantic import BaseModel, model_validator
+
+
+class TokenType(str, Enum):
+    BEARER = "Bearer"
 
 
 class AccessTokenResponse(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str = 'bearer'
+    token_type: TokenType = TokenType.BEARER
 
 
 class AccessTokenData(BaseModel):
     sub: str
-    role: str
+    role: Role
 
 
 class RefreshRequest(BaseModel):
@@ -18,7 +24,7 @@ class RefreshRequest(BaseModel):
 
 class RefreshResponse(BaseModel):
     access_token: str
-    token_type: str = 'bearer'
+    token_type: TokenType = TokenType.BEARER
 
 
 class LoginRequest(BaseModel):

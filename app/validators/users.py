@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.validators.role import RoleOut
+from app.validators.role import RoleOut, Role
 from app.validators.passwords import PasswordStr
 from pydantic import BaseModel, EmailStr, model_validator
 
@@ -20,13 +20,12 @@ class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: PasswordStr
-    role: str
+    role: Role
 
     @model_validator(mode="after")
     def lowercase_fields(self):
         self.username = self.username.lower()
         self.email = self.email.lower()
-        self.role = self.role.lower()
         return self
 
 
@@ -34,7 +33,7 @@ class UserUpdate(BaseModel):
     username: str | None = None
     email: EmailStr | None = None
     password: PasswordStr | None = None
-    role: str | None = None
+    role: Role | None = None
 
     @model_validator(mode="after")
     def lowercase_fields(self):
@@ -42,6 +41,4 @@ class UserUpdate(BaseModel):
             self.username = self.username.lower()
         if self.email:
             self.email = self.email.lower()
-        if self.role:
-            self.role = self.role.lower()
         return self
