@@ -1,7 +1,7 @@
 from jose import jwt
-from app.validators.auth import AccessTokenData
 from fastapi import Depends, HTTPException
-from app.middlewares.jwt import decode_access_token
+from app.validators.auth import AccessTokenData
+from app.services.auth import decode_access_token
 from fastapi.security import OAuth2PasswordBearer
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")

@@ -1,3 +1,4 @@
+from fastapi import Depends, HTTPException
 from app.services import user as user_service
 from app.validators import users as validator
 from app.config.database import get_db_session
@@ -5,14 +6,14 @@ from app.validators.auth import AccessTokenData
 from app.services import order as order_service
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.middlewares.auth import get_current_user
+from app.middlewares.router import get_api_router
 from app.validators import orders as order_validator
-from fastapi import APIRouter, Depends, HTTPException
 
-router = APIRouter()
+router = get_api_router("users")
 
 
 # Create new user (Admin only)
-@router.post("/users", response_model=validator.UserOut, status_code=201)
+@router.post("/", response_model=validator.UserOut, status_code=201)
 async def create_user(user: validator.UserCreate,
                       db: AsyncSession = Depends(get_db_session)):
     try:
@@ -26,7 +27,7 @@ async def create_user(user: validator.UserCreate,
 
 
 # List all users (Admin only)
-@router.get("/users", response_model=list[validator.UserOut])
+@router.get("/", response_model=list[validator.UserOut])
 async def get_users(db: AsyncSession = Depends(get_db_session)):
     try:
         return await user_service.get_users(db)
@@ -36,7 +37,7 @@ async def get_users(db: AsyncSession = Depends(get_db_session)):
 
 
 # Update current user details (User only)
-@router.put("/users/me", response_model=validator.UserOut, status_code=200)
+@router.put("/me", response_model=validator.UserOut, status_code=200)
 async def update_current_user(user: validator.UserUpdate,
                               current_user: AccessTokenData = Depends(
                                   get_current_user),
@@ -53,7 +54,7 @@ async def update_current_user(user: validator.UserUpdate,
 
 
 # Retrieve current user details (User only)
-@router.get("/users/me", response_model=validator.UserOut)
+@router.get("/me", response_model=validator.UserOut)
 async def get_current_user(current_user: AccessTokenData = Depends(get_current_user),
                            db: AsyncSession = Depends(get_db_session)):
     try:
@@ -70,7 +71,7 @@ async def get_current_user(current_user: AccessTokenData = Depends(get_current_u
 
 
 # Get user by ID (Admin and User if self)
-@router.get("/users/{user_id}", response_model=validator.UserOut)
+@router.get("/{user_id}", response_model=validator.UserOut)
 async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db_session)):
     try:
         user = await user_service.get_user_by_id(db, user_id)
@@ -85,7 +86,7 @@ async def get_user_by_id(user_id: int, db: AsyncSession = Depends(get_db_session
 
 
 # Update user (Admin and User if self)
-@router.put("/users/{user_id}", response_model=validator.UserOut, status_code=200)
+@router.put("/{user_id}", response_model=validator.UserOut, status_code=200)
 async def update_user(user_id: int, user: validator.UserUpdate,
                       db: AsyncSession = Depends(get_db_session)):
     try:
@@ -99,7 +100,7 @@ async def update_user(user_id: int, user: validator.UserUpdate,
 
 
 # Delete user (Admin only)
-@router.delete("/users/{user_id}", status_code=204)
+@router.delete("/{user_id}", status_code=204)
 async def delete_user(user_id: int, db: AsyncSession = Depends(get_db_session)):
     try:
         await user_service.delete_user(db, user_id)
@@ -112,7 +113,7 @@ async def delete_user(user_id: int, db: AsyncSession = Depends(get_db_session)):
 
 
 # List orders for a specific user (Admin)
-@router.get("/users/{user_id}/orders", response_model=list[order_validator.OrderOut])
+@router.get("/{user_id}/orders", response_model=list[order_validator.OrderOut])
 async def get_user_orders(user_id: int,
                           db: AsyncSession = Depends(get_db_session)):
     try:

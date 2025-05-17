@@ -1,12 +1,13 @@
 from jose import jwt
 import app.validators.auth as validator
+from fastapi import Depends, HTTPException
 from app.config.database import get_db_session
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException
+from app.middlewares.router import get_api_router
 from app.services.auth import authenticate_user, token_refresh
 
 
-router = APIRouter(prefix="/auth")
+router = get_api_router("auth")
 
 
 @router.post("/login", response_model=validator.AccessTokenResponse, status_code=201)
