@@ -2,12 +2,12 @@ from jose import jwt
 from sqlalchemy import select
 from passlib.hash import bcrypt
 from fastapi import HTTPException
-from app.db.models.user import User
 from sqlalchemy.orm import selectinload
 import app.validators.auth as validator
 from app.config.settings import settings
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta, timezone
+from app.db.models import User, Role, RolePrivilege
 
 
 def create_access_token(data: dict, expires_delta: timedelta = None) -> str:
@@ -40,16 +40,29 @@ def decode_refresh_token(token: str) -> dict:
 
 async def authenticate_user(db: AsyncSession, data: validator.LoginRequest):
     result = await db.execute(
-        select(User).options(selectinload(User.role))
+        select(User)
+        .options(
+            selectinload(User.role)
+            .selectinload(Role.role_privileges)
+            .selectinload(RolePrivilege.privilege)
+        )
         .where(User.username == data.username))
     user = result.scalar_one_or_none()
 
     if not user or not bcrypt.verify(data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
+    # Extract privilege keys from the user's role
+    privileges = [
+        rp.privilege.key
+        for rp in user.role.role_privileges
+        if rp.privilege
+    ]
+
     access_token = create_access_token({
         "sub": str(user.id),
         "role": user.role.key,
+        "privileges": privileges,
     })
 
     refresh_token = create_refresh_token({"sub": str(user.id)})
