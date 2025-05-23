@@ -30,7 +30,7 @@ class TokenAuthMiddleware(BaseHTTPMiddleware):
         try:
             payload: AccessTokenData = decode_access_token(token)
             # Attach user info to request state for use in route handlers
-            request.state.user: AccessTokenData = payload
+            request.state.user = payload
 
         except jwt.JWTError:
             return JSONResponse(status_code=401, content={"detail": "Invalid or expired token"})

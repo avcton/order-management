@@ -16,6 +16,7 @@ class AccessTokenResponse(BaseModel):
 class AccessTokenData(BaseModel):
     sub: str
     role: Role
+    privileges: list[str]
 
 
 class RefreshRequest(BaseModel):
