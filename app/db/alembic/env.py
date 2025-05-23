@@ -1,10 +1,7 @@
-# Import dynamic DB URL and models
-from app.config.database import DATABASE_URI, Base
-from app.db.models.user import User
-from app.db.models.order import Order
-from app.db.models.role import Role
-from app.db.models.privilege import Privilege
-from app.db.models.role_privilege import RolePrivilege
+# Import the dynamic DB URL and models
+from app.config.database import Base
+from app.config.settings import settings
+import app.db.models
 
 from logging.config import fileConfig
 
@@ -13,19 +10,18 @@ from sqlalchemy import pool
 
 from alembic import context
 
-import os
-import sys
-from pathlib import Path
-
-# Add the root of project to sys.path so Python can find config/database.py
-sys.path.append(str(Path(__file__).resolve().parents[2]))
-
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
+
+def get_sync_url():
+    """Returns the sync database URL from settings"""
+    return f"postgresql://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+
+
 # Override sqlalchemy.url from alembic.ini
-config.set_main_option("sqlalchemy.url", DATABASE_URI)
+config.set_main_option("sqlalchemy.url", get_sync_url())
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

@@ -1,7 +1,7 @@
 from sqlalchemy.sql import func
 from app.config.database import Base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, DateTime, text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 
 
 class User(Base):
